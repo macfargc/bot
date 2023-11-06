@@ -7,7 +7,7 @@ const {
   REST,
   Routes,
 } = require("discord.js");
-const { token, serverInviteUrl, deathOptions } = require("../config");
+const { token, serverInviteUrl, deathOptions } = require("../config"); // Change this to the correct location.
 const fs = require("fs");
 const path = require("node:path");
 const client = new Client({
@@ -55,11 +55,11 @@ client.on("ready", () => {
 
 // Load event files
 const eventFiles = fs
-  .readdirSync("C:/Users/macfa/Desktop/madfutters/src/events")
+  .readdirSync("C:/Users/macfa/Desktop/madfutters/src/events") // Edit this to the correct location
   .filter((file) => file.endsWith(".js"));
 
 for (const file of eventFiles) {
-  const event = require(`C:/Users/macfa/Desktop/madfutters/src/events/${file}`);
+  const event = require(`C:/Users/macfa/Desktop/madfutters/src/events/${file}`); // Edit this to the correct location
 
   if (event.name) {
     client.on(event.name, event.execute.bind(null, client));
