@@ -1,5 +1,5 @@
 {
-  "name": "snix_bot",
+  "name": "Madfutters TEST",
   "version": "1.0.0",
   "description": "",
   "main": "src/bot.js",
@@ -8,7 +8,7 @@
     "commands": "node src/reg-commands.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Gordon (macfarc on github) gordon0333 on discord",
   "license": "ISC",
   "dependencies": {
     "discord-rpc": "^4.0.1"
