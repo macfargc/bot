@@ -1,5 +1,5 @@
 # bot
-Shit for Madfutters
+Madfutters Development Bot - By Gordon
 
 
 All you have to do is download the file as a zip, install node js from https://nodejs.org/en (the recommended version)
