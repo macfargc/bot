@@ -2,6 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const { guildLogo, staffRoleId } = require("../../../config.js");
 const fs = require("fs");
 const { formatDistanceToNow } = require("date-fns");
+const { error } = require("console");
 const rewards = [];
 const ids = [];
 let bts = 0;
@@ -547,12 +548,54 @@ module.exports = {
           const playerRating = String(randomPlayer.rating).split(",")[0];
           const playerNation = String(randomPlayer.nation.name).split(",")[0];
           const playerClub = String(randomPlayer.club.name).split(",")[0];
+          const playerPos = String(randomPlayer.position).split(",")[0];
+
+          const special_a = ["á", "à", "ä"];
+          const special_e = ["é", "è", "ê", "ë"];
+          const special_i = ["í", "î", "ï"];
+          const special_o = ["ó", "ô", "ö"];
+          const special_u = ["ú", "û", "ü"];
+
+          while (
+            special_a.some((char) => playerName.includes(char)) ||
+            special_e.some((char) => playerName.includes(char)) ||
+            special_i.some((char) => playerName.includes(char)) ||
+            special_o.some((char) => playerName.includes(char)) ||
+            special_u.some((char) => playerName.includes(char))
+          ) {
+            // Replace special characters with their corresponding basic letters
+            special_a.forEach((char) => {
+              playerName = playerName.replace(new RegExp(char, "g"), "a");
+            });
+
+            special_e.forEach((char) => {
+              playerName = playerName.replace(new RegExp(char, "g"), "e");
+            });
+
+            special_i.forEach((char) => {
+              playerName = playerName.replace(new RegExp(char, "g"), "i");
+            });
+
+            special_o.forEach((char) => {
+              playerName = playerName.replace(new RegExp(char, "g"), "o");
+            });
+
+            special_u.forEach((char) => {
+              playerName = playerName.replace(new RegExp(char, "g"), "u");
+            });
+          }
+
+          // Your code here after replacing special characters in playerName
 
           // Use EmbedBuilder for creating the embed
           const embed = new EmbedBuilder()
             .setTitle("Random Player Details")
             .addFields(
-              { name: "Player Name Starts With", value: playerName.charAt(0) }, // Display only the first letter
+              {
+                name: "Player Name Starts With",
+                value: playerName.substring(0, 3),
+              }, // Display only the first letter
+              { name: "Position", value: playerPos },
               { name: "Rating", value: playerRating },
               { name: "Nation", value: playerNation },
               { name: "Club", value: playerClub }
@@ -561,30 +604,44 @@ module.exports = {
 
           await interaction.reply({ embeds: [embed] });
 
-          // Wait for a message from the user
-          const filter = (msg) => msg.author.id === interaction.user.id;
-          const response = await interaction.channel.awaitMessages({
-            filter,
-            max: 1,
-            time: 60 * 2 * 1000,
-          });
+          // Allow multiple guesses
+          let allowedGuesses = 3; // Set the number of allowed guesses
+          let correctGuess = false;
 
-          if (response.size === 0) {
-            // No response received
-            await interaction.followUp(
-              "You didn't provide an answer within the time limit."
-            );
-          } else {
-            // Check if the user's response includes the player's name
-            const userAnswer = response.first().content.toLowerCase();
-            if (userAnswer.includes(playerName)) {
+          while (allowedGuesses > 0 && !correctGuess) {
+            // Wait for a message from the user
+            const filter = (msg) => msg.author.id === interaction.user.id;
+            const response = await interaction.channel.awaitMessages({
+              filter,
+              max: 1,
+              time: 60 * 2 * 1000,
+            });
+
+            if (response.size === 0) {
+              // No response received
               await interaction.followUp(
-                "Correct, You have received 1m coins."
+                "You didn't provide an answer within the time limit."
               );
-              // Code to update wallet here
             } else {
-              await interaction.followUp("Incorrect answer.");
+              // Check if the user's response includes the player's name
+              const userAnswer = response.first().content.toLowerCase();
+              if (userAnswer.includes(playerName)) {
+                await interaction.followUp(
+                  "Correct! You have received 1m coins."
+                );
+                correctGuess = true;
+                // Code to update wallet here
+              } else {
+                await interaction.followUp("Incorrect answer. Try again.");
+                allowedGuesses--;
+              }
             }
+          }
+
+          if (!correctGuess) {
+            await interaction.followUp(
+              `You've used all your guesses. The correct answer was ${playerName}.`
+            );
           }
         }
       }
